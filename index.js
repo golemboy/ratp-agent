@@ -6,18 +6,28 @@ const port = 443;
 exports.listeStations = (req, res) => {
   let ratp_type = req.body.result.parameters['ratp-type'];
   let code = req.body.result.parameters['number'];  
-  
+  //console.log(JSON.parse(req.body));
   console.log('Parameters: ratp_type : ' + ratp_type +', code : '+ code);
   
-  // Call the weather API
+  // Call the API
   callListeStations(ratp_type, code).then((output) => {
-    // Return the results of the weather API to Dialogflow    
+    // Return the results of the weather to Dialogflow    
     res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify({ 'speech': output, 'displayText': output }));
+    
+    let response = {};
+    response.speech = output;
+    response.displayText = output;
+    response.data = {};
+    response.contextOut = [];
+    response.source = 'listeStations';       
+    response.followupEvent = {};
+    
+    //res.send(JSON.stringify({ 'source':'webhook', 'speech': output, 'displayText': output }));
+    res.send(JSON.stringify( response ));
   }).catch((error) => {
     // If there is an error let the user know
     res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify({ 'speech': error, 'displayText': error }));
+    res.send(JSON.stringify({'speech': error, 'displayText': error }));
   });  
   
 };
