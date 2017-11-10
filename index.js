@@ -10,7 +10,7 @@ exports.listeStations = (req, res) => {
   console.log('Parameters: ratp_type : ' + ratp_type +', code : '+ code);
   
   // Call the weather API
-  callListeStations('bus', '58').then((output) => {
+  callListeStations(ratp_type, code).then((output) => {
     // Return the results of the weather API to Dialogflow    
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({ 'speech': output, 'displayText': output }));
@@ -19,6 +19,7 @@ exports.listeStations = (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({ 'speech': error, 'displayText': error }));
   });  
+  
 };
 
 function callListeStations (type, code) {
@@ -50,6 +51,18 @@ function callListeStations (type, code) {
     });
   });
 }
-// var lst = exports.listeStations;
-// lst();
 
+var restify = require('restify');
+var lstStation = exports.listeStations;
+
+var server = restify.createServer();
+
+server.use(restify.plugins.acceptParser(server.acceptable));
+server.use(restify.plugins.queryParser());
+server.use(restify.plugins.bodyParser());
+
+server.post('/listeStations', lstStation);
+
+server.listen(8080, function() {
+  console.log('%s listening at %s', server.name, server.url);
+});
